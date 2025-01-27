@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { AppModule } from './../src/app.module';
-import { PrismaService } from '@src/prisma.service';
+
 import request from 'supertest';
 import fs from 'fs';
+import { PrismaService } from '@src/persistence/prisma/prisma.service';
+import { AppModule } from '@src/app.module';
 
 describe('VideoController (e2e)', () => {
   let moduleFixture: TestingModule;
