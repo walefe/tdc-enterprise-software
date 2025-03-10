@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@src/persistence//prisma/prisma.service';
 import { VideoNotFoundException } from '../exception/video-not-found.exception';
+import { VideoRepository } from '@src/persistence/repository/video.repository';
 
 @Injectable()
 export class MediaPlayerService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly videoRepository: VideoRepository) {}
 
-  async prepareStreaming(videoId: string) {
-    const video = await this.prismaService.video.findUnique({
-      where: {
-        id: videoId,
-      },
-    });
+  async prepareStreaming(videoId: string): Promise<string> {
+    const video = await this.videoRepository.findById(videoId);
 
     if (!video)
       throw new VideoNotFoundException(`video with id ${videoId} not found`);
 
-    return video?.url;
+    return video.getUrl();
   }
 }
