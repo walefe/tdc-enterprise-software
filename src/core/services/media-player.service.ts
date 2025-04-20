@@ -7,11 +7,11 @@ export class MediaPlayerService {
   constructor(private readonly videoRepository: VideoRepository) {}
 
   async prepareStreaming(videoId: string): Promise<string> {
-    const video = await this.videoRepository.findById(videoId);
+    const video = await this.videoRepository.findOneById(videoId);
 
     if (!video)
       throw new VideoNotFoundException(`video with id ${videoId} not found`);
 
-    return video.getUrl();
+    return video.url;
   }
 }
