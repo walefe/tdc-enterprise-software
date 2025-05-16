@@ -8,7 +8,7 @@ import { HttpClient } from '@contentModule/infra/http/client/http.client';
 import { PersistenceModule } from '@contentModule/persistence/persistence.module';
 import { ContentRepository } from '@contentModule/persistence/repository/content.repository';
 import { VideoRepository } from '@contentModule/persistence/repository/video.repository';
-import { ConfigModule } from './infra/module/config/config.module';
+import { ConfigModule } from '../shared/module/config/config.module';
 
 @Module({
   imports: [PersistenceModule.forRoot(), ConfigModule.forRoot()],
