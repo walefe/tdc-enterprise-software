@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
 import request from 'supertest';
+import nock from 'nock';
 import fs from 'fs';
 import { AppModule } from '@src/app.module';
 import { VideoRepository } from '@src/persistence/repository/video.repository';
@@ -41,16 +42,48 @@ describe('ContentController (e2e)', () => {
     await videoRepository.deleteAll();
     await movieRepository.deleteAll();
     await contentRepository.deleteAll();
+    nock.cleanAll();
   });
 
   afterAll(async () => {
     await moduleFixture.close();
-    fs.rmSync('./uploads', { recursive: true, force: true });
+    // fs.rmSync('./uploads', { recursive: true, force: true });
     await app.close();
   });
 
   describe('GET /stream/:videoId', () => {
     it('should stream a video', async () => {
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`/search/keyword`)
+        .query({
+          query: 'Test Video',
+          page: '1',
+        })
+        .reply(200, {
+          results: [{ id: '1' }],
+        });
+
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`discover/movie`)
+        .query({
+          with_keywords: '1',
+        })
+        .reply(200, {
+          vote_average: 8.5,
+        });
+
       const createdMovie = await contentManagementService.createMovie({
         title: 'Test Video',
         description: 'This is a test video',
@@ -77,7 +110,7 @@ describe('ContentController (e2e)', () => {
 
     it('returns 404 if the video is not found', async () => {
       await request(app.getHttpServer())
-        .get('/stream/invalid-id')
+        .get('/stream/45705b56-a47f-4869-b736-8f6626c940f8')
         .expect(HttpStatus.NOT_FOUND);
     });
   });

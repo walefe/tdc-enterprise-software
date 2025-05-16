@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
 import request from 'supertest';
+import nock from 'nock';
 import fs from 'fs';
 import { AppModule } from '@src/app.module';
 import { VideoRepository } from '@src/persistence/repository/video.repository';
@@ -36,6 +37,7 @@ describe('VidoUploadController (e2e)', () => {
     await videoRepository.deleteAll();
     await movieRepository.deleteAll();
     await contentRepository.deleteAll();
+    nock.cleanAll();
   });
 
   afterAll(async () => {
@@ -46,6 +48,37 @@ describe('VidoUploadController (e2e)', () => {
 
   describe('POST /videos', () => {
     it('should upload a video', async () => {
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`/search/keyword`)
+        .query({
+          query: 'Test Video',
+          page: '1',
+        })
+        .reply(201, {
+          results: [{ id: '1' }],
+        });
+
+      nock('https://api.themoviedb.org/3', {
+        encodedQueryParams: true,
+        reqheaders: {
+          Authorization: (): boolean => true,
+        },
+      })
+        .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+        .get(`discover/movie`)
+        .query({
+          with_keywords: '1',
+        })
+        .reply(200, {
+          vote_average: 8.5,
+        });
+
       const video = {
         title: 'Test Video',
         description: 'This is a test video',
