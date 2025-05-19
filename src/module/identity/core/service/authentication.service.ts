@@ -1,7 +1,7 @@
 import { UserRepository } from '@identityModule/persistence/repository/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
-import bcrypt from 'bcrypt';
+import { compare } from 'bcrypt';
 import { UserUnauthorizedException } from '../exception/user-unauthorized.exception';
 
 // TODO: move this to a .env file and config
@@ -37,6 +37,6 @@ export class AuthService {
     password: string,
     actualPassword: string,
   ): Promise<boolean> {
-    return bcrypt.compare(password, actualPassword);
+    return compare(password, actualPassword);
   }
 }

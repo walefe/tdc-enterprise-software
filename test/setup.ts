@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 import fs from 'node:fs';
 
 const testEnvFile = `.env.test`;
@@ -8,5 +8,5 @@ if (!fs.existsSync(envFile)) throw new Error('.env file not found');
 
 if (!fs.existsSync(testEnvFile)) throw new Error('.env.test file not found');
 
-dotenv.config({ path: envFile });
-dotenv.config({ path: testEnvFile, override: true });
+config({ path: envFile });
+config({ path: testEnvFile, override: true });
